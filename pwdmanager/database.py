@@ -30,7 +30,7 @@ def init_database(db_path: Path) -> int:
 
 
 class DBResponse(NamedTuple):
-    data: List[Dict[str, Any]]
+    passwords: List[Dict[str, Any]]
     error: int
 
 
@@ -60,5 +60,5 @@ class DataBaseHandler:
         read = self.read_db()
         if read.error:
             return DBResponse([], read.error)
-        read.data.append(data)
-        return self.write_passwords(read.data)
+        read.passwords.append(data)
+        return self.write_passwords(read.passwords)

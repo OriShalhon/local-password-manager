@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import NamedTuple, Dict, Any
+from typing import NamedTuple, Dict, Any, List
 
 from pwdmanager.database import DataBaseHandler
 
@@ -20,8 +20,12 @@ class PasswordManager:
         password_data = {
             "name": name,
             "password": password,
-            "id": str(len(read.data) + 1),
+            "id": str(len(read.passwords) + 1),
         }
-        read.data.append(password_data)
-        write = self._db_handler.write_passwords(read.data)
+        read.passwords.append(password_data)
+        write = self._db_handler.write_passwords(read.passwords)
         return Password(password_data, write.error)
+
+    def get_passwords(self) -> List[Password.password]:
+        read = self._db_handler.read_db()
+        return read.passwords
