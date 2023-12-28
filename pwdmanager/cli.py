@@ -117,23 +117,7 @@ def list_passwords() -> None:
             fg=typer.colors.RED,
         )
         raise typer.Exit(code=DB_READ_ERROR)
-    typer.secho("Password list:", fg=typer.colors.BLUE, bold=True)
-    columns = ("ID  ",
-               "| Name  ",
-               "| Password  ",
-               )
-    headers = "".join(columns)
-    typer.secho(headers, fg=typer.colors.BLUE, bold=True)
-    typer.secho("-" * len(headers), fg=typer.colors.BLUE)
-    for password in passwords:
-        typer.secho(
-            "{id}   | {name}   | {password}".format(
-                id=password["id"],
-                name=password["name"],
-                password=password["password"],
-            ),
-            fg=typer.colors.BLUE,
-        )
+    print_password_list(passwords)
 
 
 @app.command()
@@ -226,6 +210,82 @@ def generate(
             "Password added successfully, \n"
             "Password ID is: {}".format(password.password["id"]),
             fg=typer.colors.GREEN,
+        )
+
+
+@app.command()
+def get(
+        password_id: str = typer.Option(
+            None,
+            "--id",
+            "-i",
+            help="Password ID",
+        ),
+        name: str = typer.Option(
+            None,
+            "--name",
+            "-n",
+            help="Password name",
+        ),
+) -> None:
+    """
+    Get a password from the database
+    """
+    pwd_manager = get_pwd_manager()
+    if password_id:
+        password_response = pwd_manager.get_password_by_id(password_id)
+        if password_response.error:
+            typer.secho(
+                "Error while getting password: {}".format(ERRORS[password_response.error]),
+                fg=typer.colors.RED,
+            )
+            raise typer.Exit(code=password_response.error)
+        typer.secho(
+            "Password found: \n"
+            "Password ID is: {id} \n"
+            "Password name is: {name} \n"
+            "Password is: {password}".format(
+                id=password_response.password["id"],
+                name=password_response.password["name"],
+                password=password_response.password["password"],
+            ),
+            fg=typer.colors.GREEN,
+        )
+    elif name:
+        passwords = pwd_manager.get_password_by_name(name)
+        if not passwords:
+            typer.secho(
+                "No passwords found",
+                fg=typer.colors.RED,
+            )
+            raise typer.Exit(code=DB_READ_ERROR)
+        print_password_list(passwords)
+
+    else:
+        typer.secho(
+            "Please provide either password ID or name",
+            fg=typer.colors.RED,
+        )
+        raise typer.Exit(code=1)
+
+
+def print_password_list(passwords) -> None:
+    typer.secho("Password list:", fg=typer.colors.BLUE, bold=True)
+    columns = ("ID  ",
+               "| Name  ",
+               "| Password  ",
+               )
+    headers = "".join(columns)
+    typer.secho(headers, fg=typer.colors.BLUE, bold=True)
+    typer.secho("-" * len(headers), fg=typer.colors.BLUE)
+    for password in passwords:
+        typer.secho(
+            "{id}   | {name}   | {password}".format(
+                id=password["id"],
+                name=password["name"],
+                password=password["password"],
+            ),
+            fg=typer.colors.BLUE,
         )
 
 
