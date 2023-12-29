@@ -8,7 +8,9 @@ from pwdmanager import (
     SUCCESS,
     __version__,
     __app_name__,
-    cli, pwdManager
+    cli,
+    pwdManager,
+    ID_ERROR
 )
 
 runner = CliRunner()
@@ -75,3 +77,17 @@ def test_password_without_special():
     assert result.exit_code == 0
     generated_password = result.output.strip().split(": ")[1]
     assert not (any(char in string.punctuation for char in generated_password))
+
+
+def test_remove_password_by_id(mock_json_file):
+    pwdmanager = pwdManager.PasswordManager(mock_json_file)
+    assert pwdmanager.remove_password_by_id("1").error == SUCCESS
+    assert len(pwdmanager._db_handler.read_db().passwords) == 0
+
+
+def test_get_password_by_id(mock_json_file):
+    pwdmanager = pwdManager.PasswordManager(mock_json_file)
+    password = pwdmanager.get_password_by_id("1")
+    assert password.error == SUCCESS
+    password = pwdmanager.get_password_by_id("2")
+    assert password.error == ID_ERROR

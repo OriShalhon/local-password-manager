@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import NamedTuple, Dict, Any, List
 
 from pwdmanager.database import DataBaseHandler
-from pwdmanager import SUCCESS
+from pwdmanager import SUCCESS, ID_ERROR
 
 
 class Password(NamedTuple):
@@ -38,7 +38,7 @@ class PasswordManager:
         for password in read.passwords:
             if password["id"] == password_id:
                 return Password(password, SUCCESS)
-        return Password({}, 6)
+        return Password({}, ID_ERROR)
 
     def get_password_by_name(self, name: str) -> List[Password.password]:
         read = self._db_handler.read_db()
@@ -49,3 +49,14 @@ class PasswordManager:
             if password["name"] == name:
                 passwords.append(password)
         return passwords
+
+    def remove_password_by_id(self, password_id: str) -> Password:
+        read = self._db_handler.read_db()
+        if read.error:
+            return Password({}, read.error)
+        for password in read.passwords:
+            if password["id"] == password_id:
+                read.passwords.remove(password)
+                write = self._db_handler.write_passwords(read.passwords)
+                return Password(password, write.error)
+        return Password({}, ID_ERROR)

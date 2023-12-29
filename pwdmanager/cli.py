@@ -269,6 +269,34 @@ def get(
         raise typer.Exit(code=1)
 
 
+@app.command()
+def remove(
+        password_id: str = typer.Option(
+            ...,
+            "--id",
+            "-i",
+            prompt="Password ID",
+            help="Password ID",
+        ),
+) -> None:
+    """
+    Remove a password from the database
+    """
+    pwd_manager = get_pwd_manager()
+    password_response = pwd_manager.remove_password_by_id(password_id)
+    if password_response.error:
+        typer.secho(
+            "Error while removing password: {}".format(ERRORS[password_response.error]),
+            fg=typer.colors.RED,
+        )
+        raise typer.Exit(code=password_response.error)
+    typer.secho(
+        "Password removed successfully, \n"
+        "Password ID was: {}".format(password_response.password["id"]),
+        fg=typer.colors.GREEN,
+    )
+
+
 def print_password_list(passwords) -> None:
     typer.secho("Password list:", fg=typer.colors.BLUE, bold=True)
     columns = ("ID  ",
