@@ -91,3 +91,23 @@ def test_get_password_by_id(mock_json_file):
     assert password.error == SUCCESS
     password = pwdmanager.get_password_by_id("2")
     assert password.error == ID_ERROR
+
+
+def test_remove_all(mock_json_file):
+    test_data1 = {
+        "name": "name1",
+        "password": "pass1",
+        "expected_return": {"name": "name1", "password": "pass1", "id": "2"},
+    }
+
+    test_data2 = {
+        "name": "name2",
+        "password": "pass2",
+        "expected_return": {"name": "name2", "password": "pass2", "id": "3"},
+    }
+
+    pwdmanager = pwdManager.PasswordManager(mock_json_file)
+    pwdmanager.add(test_data1["name"], test_data1["password"])
+    pwdmanager.add(test_data2["name"], test_data2["password"])
+    assert pwdmanager.remove_all().error == SUCCESS
+    assert len(pwdmanager._db_handler.read_db().passwords) == 0

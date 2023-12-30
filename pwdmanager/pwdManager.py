@@ -60,3 +60,7 @@ class PasswordManager:
                 write = self._db_handler.write_passwords(read.passwords)
                 return Password(password, write.error)
         return Password({}, ID_ERROR)
+
+    def remove_all(self) -> Password:
+        write = self._db_handler.write_passwords([])
+        return Password({}, write.error)
