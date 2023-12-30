@@ -297,6 +297,38 @@ def remove(
     )
 
 
+@app.command(name="clear")
+def remove_all(
+        force: bool = typer.Option(
+            ...,
+            prompt="Are you sure you want to remove all passwords?",
+            help="force remove all passwords",
+        ),
+) -> None:
+    """
+    Remove all passwords from the database
+    """
+    pwd_manager = get_pwd_manager()
+    if force:
+        result = pwd_manager.remove_all().error
+        if result:
+            typer.secho(
+                "Error while removing passwords: {}".format(ERRORS[result]),
+                fg=typer.colors.RED,
+            )
+            raise typer.Exit(code=result)
+        else:
+            typer.secho(
+                "All passwords removed successfully",
+                fg=typer.colors.GREEN,
+            )
+    else:
+        typer.secho(
+            "Aborted",
+            fg=typer.colors.GREEN,
+        )
+
+
 def print_password_list(passwords) -> None:
     typer.secho("Password list:", fg=typer.colors.BLUE, bold=True)
     columns = ("ID  ",
